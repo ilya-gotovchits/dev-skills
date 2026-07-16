@@ -144,7 +144,7 @@ anchor: <exact line text>
 Two things keep the file scannable, not a wall of text:
 
 - **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
-- **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` (short bullets) and `**Checked**` (evidence) are split by a `---` rule. Expanded ≠ walled: the visible file reads as title → ask, detail on demand.
+- **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` and `**Checked**` are split by a `---` rule. **Two registers:** the visible ask is telegraphic; inside the fold (opt-in reading) write *expansively* — semantic paragraphs (one facet each), **bold** the key claim, bullets only for real enumeration; `Checked` narrates what you set out to confirm → how → what it showed, with raw commands in a code block. Guardrails: structure it (paragraphs + emphasis, never a monolith), and **length never inflates certainty** — expand the explanation, keep every claim tied to `Checked`, hedge the unverified.
 
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
 
