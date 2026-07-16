@@ -136,9 +136,9 @@ End with a **footer** routing anything that belongs on a *different* PR (archite
 
 ## Conventions (comment style — the non-negotiable part)
 
-Read `references/conventions.md` for the full seven. The essentials:
+Read `references/conventions.md` for the full seven, and `references/phrasing.dictionary.md` for the bank of openers/framings to draw tone from. The essentials:
 
-1. **Tentative framing, always** — open with `looks like` / `perhaps` / `I think` / `I wonder if` / `might be worth`. No imperatives, no "this is wrong", no "revert this".
+1. **Tentative framing, always** — open with a phrasing from the dictionary (`looks like` / `I wonder if` / `might be worth` / soft questions). No imperatives, no "this is wrong", no "revert this" (see the dictionary's *Avoid* list).
 2. **Anchor precisely** — labeled `file` / `path` / `line` / `anchor`, each on its own line (see the contract). One concern per comment.
 3. **Calibrate to evidence** — see the verification gate above.
 4. **Separate altitudes** — code nits on the impl PR; architecture/direction on the design PR.
