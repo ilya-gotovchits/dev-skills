@@ -113,4 +113,4 @@ Spend attention where it matters; a pile of trivial nits buries the one comment 
 
 ## Canonical example
 
-A worked example is intentionally left out until we run the skill on a live PR — then the `<!-- checked -->` notes reflect real greps and the line numbers are real, not fabricated. Populate this section from the first real run.
+A worked example is intentionally left out until we run the skill on a live PR — then the `<details>Checked</details>` blocks reflect real greps and the line numbers are real, not fabricated. Populate this section from the first real run.

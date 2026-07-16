@@ -1,6 +1,6 @@
 ---
 name: pr-review-comments
-description: Use when asked to draft inline review comments for SOMEONE ELSE'S GitHub pull request WITHOUT posting them — produces a paste-ready .md file of tentative comments a human edits and posts manually. Triggers: "look at this PR", "write review comments for PR #123", reviewing a colleague's/teammate's PR before approving. This skill NEVER posts. NOT for your own working diff or auto-posting/fixing a review — that's /code-review; NOT the built-in review / review-pr commands, which post or run multi-agent reviews.
+description: Use when asked to draft inline review comments for SOMEONE ELSE'S GitHub pull request WITHOUT posting them — produces a paste-ready .md file of tentative comments a human edits and posts manually. Triggers in any phrasing or language, no slash needed: "look at this PR", "review PR #123", "посмотри ПР 12345", "глянь этот пулл-реквест", reviewing a colleague's/teammate's PR before approving. This skill NEVER posts. NOT for your own working diff or auto-posting/fixing a review — that's /code-review; NOT the built-in review / review-pr commands, which post or run multi-agent reviews.
 ---
 
 # PR Review Comments
@@ -41,7 +41,7 @@ If the human clearly wants *drafted comments they post themselves*, this skill i
    code-review/efficiently-EFF-<ticket>/
    ```
    Clone the repo there and `gh pr checkout <number>` (or reuse/update the folder if it already exists). Working with real files means anchors are exact and you never fetch file contents through separate API calls.
-4. Get the change set with `gh pr diff` / `git diff <base>...<pr-branch>` to know *which* files/lines belong to the PR, then map them onto the checked-out files.
+4. Get the change set with `gh pr diff` / `git diff <base>...<pr-branch>` to know *which* files/lines belong to the PR, then map them onto the checked-out files. Record the PR branch HEAD sha (`git rev-parse HEAD`) — it goes in the frontmatter as `head_sha` so the publisher anchors comments to the right commit.
 5. Output goes to, and only to:
    ```
    code-review/efficiently-EFF-<ticket>/pr-<PR-number>-review-comments.md
@@ -84,7 +84,26 @@ Group by severity in the file. Every individual comment still stays humble.
 
 ## Output format
 
-Group comments under severity headings (🔴 / 🟠 / 🟡). Put a `---` rule between every comment so each block is visually separate. One comment block:
+**The file's exact structure — frontmatter fields and the finding block — is defined in `references/pr-review.contract.md`. Follow it precisely: that file is the contract the `pr-comments-publisher` skill parses to post the comments.** This section is the quick view; the contract is authoritative.
+
+Open the file with **YAML frontmatter** carrying review-level metadata (`pr`, `repo`, `ticket`, `base`, `head_sha`, `counts`), then a short human note:
+
+```md
+---
+pr: <num>
+repo: <owner/repo>
+ticket: EFF-<ticket>
+base: <base-branch>
+head_sha: <pr-head-sha>
+counts: { blocking: 0, non_blocking: 0, nit: 0 }
+---
+
+# PR #<num> (EFF-<ticket>) — inline review comments
+
+> Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
+```
+
+Then group comments under severity headings (🔴 / 🟠 / 🟡), with a `---` rule between every comment so each block is visually separate. One comment block:
 
 ```md
 ---
@@ -113,14 +132,6 @@ you couldn't verify>
 
 **Why each locator field is on its own line:** so the author can select and copy any one alone — the full `path` to open/search the file, the `anchor` to jump to the exact line — without dragging across the rest. `file` (basename) is for a fast visual scan; `path` (repo-root-relative) is the copy-ready locator.
 
-The top of the file keeps the header:
-
-```md
-# PR #<num> (EFF-<ticket>) — inline review comments
-
-> Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
-```
-
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
 
 ## Conventions (comment style — the non-negotiable part)
@@ -128,7 +139,7 @@ End with a **footer** routing anything that belongs on a *different* PR (archite
 Read `references/conventions.md` for the full seven. The essentials:
 
 1. **Tentative framing, always** — open with `looks like` / `perhaps` / `I think` / `I wonder if` / `might be worth`. No imperatives, no "this is wrong", no "revert this".
-2. **Anchor precisely** — real `path — line ~N` + quote the anchor line. One concern per comment.
+2. **Anchor precisely** — labeled `file` / `path` / `line` / `anchor`, each on its own line (see the contract). One concern per comment.
 3. **Calibrate to evidence** — see the verification gate above.
 4. **Separate altitudes** — code nits on the impl PR; architecture/direction on the design PR.
 5. **Faithful-to-spec ≠ defect** — an impl PR matching an approved design isn't the place to relitigate the design.
