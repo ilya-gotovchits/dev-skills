@@ -128,20 +128,23 @@ line:   <NN>
 anchor: <exact line text>
 ```
 
-> <tentative comment — one concern, opens with a soft framing/question>
+> <the ask — one tentative sentence; this is what gets skimmed>
 
-**Why it matters:** <expanded, calibrated description of the problem and its
-real impact — only what the evidence supports; downgrade wording for anything
-you couldn't verify>
+**Why it matters**
+- <one distinct point per line; **bold** the key term>
+- <another point — keep each to a line; only what the evidence supports>
 
 <details><summary>Checked</summary>
 
-<what you ran → what you found>
+- <what you ran → what you found, one per line>
 
 </details>
 ````
 
-**The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
+Two things keep the file scannable, not a wall of text:
+
+- **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
+- **`>` is one sentence, `Why it matters` is bullets — never two dense paragraphs.** The `>` quote is the ask; the reasoning is a short bulleted list (one point per line, key term bold); long evidence chains go in `<details>`. Expanded ≠ walled: the reader scans title → ask → bullets.
 
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
 
