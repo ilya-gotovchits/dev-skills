@@ -1,6 +1,6 @@
 ---
 name: pr-review-comments
-description: Use when asked to review someone else's GitHub pull request and produce paste-ready inline review comments — "look at this PR", "write review comments for PR #123", reviewing a colleague's/teammate's PR before approving. NOT for reviewing your own working diff (use /code-review for that).
+description: Use when asked to draft inline review comments for SOMEONE ELSE'S GitHub pull request WITHOUT posting them — produces a paste-ready .md file of tentative comments a human edits and posts manually. Triggers: "look at this PR", "write review comments for PR #123", reviewing a colleague's/teammate's PR before approving. This skill NEVER posts. NOT for your own working diff or auto-posting/fixing a review — that's /code-review; NOT the built-in review / review-pr commands, which post or run multi-agent reviews.
 ---
 
 # PR Review Comments
@@ -18,6 +18,19 @@ Turn "look at this PR" into a `.md` file of **inline** review comments — each 
 
 - **Use when:** reviewing *someone else's* PR, producing paste-ready comments, not applying anything.
 - **Do NOT use for** your own working diff or applying fixes — that's `/code-review`. Different job: it edits code, this one drafts comments a human posts.
+
+### Sibling tools — when to use which
+
+Several tools answer "review a PR"; they differ by **what they output** and **whether they post**. This skill wins only for the *draft-and-don't-post* case.
+
+| If you want to… | Use | Not this |
+|---|---|---|
+| Draft tentative inline comments a human edits + posts by hand, on someone else's PR | **this skill** | — |
+| Review your own working diff (bugs / simplify), optionally `--comment` or `--fix` | `/code-review` | this skill never touches your diff |
+| Have Claude post a review/comments on a PR automatically | `/code-review` / built-in `review` | this skill never posts |
+| Run a comprehensive multi-agent PR audit | `/review-pr` (pr-review-toolkit) | this skill is single-pass, comment-drafting only |
+
+If the human clearly wants *drafted comments they post themselves*, this skill is the match even when they just say "review this PR". If they want it posted or it's their own diff, hand off to the sibling above instead of drafting a file.
 
 ## Setup (run at the START of every review — make placement unambiguous)
 
@@ -51,10 +64,14 @@ For each draft comment, pull out its factual claims and verify each against the 
 
 **Calibrate wording to exactly what the check showed.** Couldn't verify? Downgrade to what's known ("this changes a shared token's semantics", not "this breaks the app") and lower the severity — never assert to fill the gap.
 
-Record each check as a **hidden note directly above the comment** (invisible when pasted into GitHub):
+Record each check in a **collapsible `<details>` block inside the comment** — visible to the author on a click, but folded so it doesn't clutter the main text (GitHub renders `<details>` in PR comments):
 
 ```md
-<!-- checked: grep -rn "eff-sys-shape-pill" → 3 consumers (dot, chip, tag); dot clamps 8px -->
+<details><summary>Checked</summary>
+
+grep -rn "eff-sys-shape-pill" → 3 consumers (dot, chip, tag); dot clamps 8px
+
+</details>
 ```
 
 ## Severity
@@ -67,16 +84,41 @@ Group by severity in the file. Every individual comment still stays humble.
 
 ## Output format
 
+Group comments under severity headings (🔴 / 🟠 / 🟡). Put a `---` rule between every comment so each block is visually separate. One comment block:
+
+```md
+---
+
+### N. <🔴|🟠|🟡> <short concern title>
+
+file:
+    <basename.ext>
+path:
+    <path/from/repo-root/to/file.ext>
+line: ~NN
+anchor: `<exact line text>`
+
+> <tentative comment — one concern, opens with a soft framing/question>
+
+**Why it matters:** <expanded, calibrated description of the problem and its
+real impact — only what the evidence supports; downgrade wording for anything
+you couldn't verify>
+
+<details><summary>Checked</summary>
+
+<what you ran → what you found; wrap in a fenced code block if multi-line>
+
+</details>
+```
+
+**Why each locator field is on its own line:** so the author can select and copy any one alone — the full `path` to open/search the file, the `anchor` to jump to the exact line — without dragging across the rest. `file` (basename) is for a fast visual scan; `path` (repo-root-relative) is the copy-ready locator.
+
+The top of the file keeps the header:
+
 ```md
 # PR #<num> (EFF-<ticket>) — inline review comments
 
 > Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
-
-<!-- checked: <what you ran → what you found> -->
-### N. `path/to/file` — line ~NN
-Anchor: `<exact line text>`
-
-> <tentative comment, one concern>
 ```
 
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
@@ -98,7 +140,7 @@ Read `references/conventions.md` for the full seven. The essentials:
 - Writing "revert this" / "you should" / "please add" → imperative. Rewrite tentatively.
 - Asserting app-wide impact you haven't grepped → overstatement. Verify or downgrade.
 - Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to the footer/design PR.
-- No `<!-- checked -->` above a comment carrying a severity → you skipped the gate.
+- No `<details>Checked</details>` block on a comment carrying a severity → you skipped the gate.
 - About to post/approve/request-changes → STOP. You only write the file.
 
 ## Rationalization table
