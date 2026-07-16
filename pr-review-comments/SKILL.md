@@ -1,6 +1,6 @@
 ---
 name: pr-review-comments
-description: Use when asked to draft inline review comments for SOMEONE ELSE'S GitHub pull request WITHOUT posting them — produces a paste-ready .md file of tentative comments a human edits and posts manually. Triggers in any phrasing or language, no slash needed: "look at this PR", "review PR #123", "посмотри ПР 12345", "глянь этот пулл-реквест", reviewing a colleague's/teammate's PR before approving. This skill NEVER posts. NOT for your own working diff or auto-posting/fixing a review — that's /code-review; NOT the built-in review / review-pr commands, which post or run multi-agent reviews.
+description: Use when asked to review SOMEONE ELSE'S GitHub PR and draft inline comments a human edits and posts by hand — this skill NEVER posts. Triggers, any language/phrasing: "look at this PR", "review PR #123", "посмотри ПР 12345", "глянь пулл-реквест". NOT your own working diff or an auto-posted/auto-fixed review (that's /code-review); NOT the built-in review / review-pr (they post or run multi-agent reviews).
 ---
 
 # PR Review Comments
