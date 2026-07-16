@@ -103,4 +103,47 @@ Spend attention where it matters; a pile of trivial nits buries the one comment 
 
 ## Canonical example
 
-A worked example is intentionally left out until we run the skill on a live PR — then the `<details>Details</details>` blocks reflect real greps and the line numbers are real, not fabricated. Populate this section from the first real run.
+The first block from the EFF-24181 live run (PR #57943, a design-doc PR) — real anchors, real greps. It shows the whole shape: a telegraphic ask visible, expansive `Why`/`Checked` folded under one `Details`, evidence kept reproducible.
+
+````md
+### 1. 🟠 Does `max` overflow apply to `role="grid"` / `listbox`?
+
+```
+file:   chip-design.md
+path:   libs/client/shared/ui-kit/docs/design/chip-design.md
+line:   60
+anchor: <eff-chip-set role="grid" [max]="5">
+```
+
+> I wonder if `max` is meant for `role="grid"` / `listbox` too — or should it be scoped to `role="list"`?
+
+<details><summary>Details</summary>
+
+**Why it matters**
+
+**The §7 overflow model is designed for static collections.** `max` renders the first *N* chips and drops the rest — §7 is explicit that hidden chips are *not rendered* (an `@for` slice, not `display: none`) and that the `+N` badge is non-interactive in v1. For a `role="list"` tag bar that's exactly right.
+
+**It gets shaky on the interactive roles.** In a `role="grid"` of input tokens (email-pills, image tags) a chip past the cap isn't in the DOM at all, so there's no keyboard or AT path to it — the user can't reach or remove a token they just added. In a `role="listbox"` filter, a chip that is *selected* but past the cap disappears from AT while still affecting the filter — a silent selection.
+
+**The migration map already seems to assume list-only.** `[max]` shows up only in §14.4 (Pattern D, static tags); §14.1 (grid) and §14.2 (listbox) don't mention overflow. So list-only may be the intent — it just isn't stated as a constraint, and the §4 example (`role="grid" [max]="5"`) points the other way.
+
+---
+
+**Checked**
+
+Confirmed two things: that hidden chips really leave the DOM, and which roles the migration map pairs with `max`.
+
+```
+§4 (line 60):  <eff-chip-set role="grid" [max]="5">        # grid + max, in the arch example
+§7 (~280):     "Hidden chips are not rendered (@for slice)"; "+N non-interactive in v1"
+§14.1 grid: no [max] · §14.2 listbox: no [max] · §14.4 list: role="list" [max]
+```
+
+So the contradiction is internal to the doc: the architecture sketch shows `grid + max`, but every migration site that uses `max` is a `list`.
+
+</details>
+````
+
+What it demonstrates: tentative one-sentence ask · labeled locator in a fenced block (copy-ready, renders on distinct lines) · `Why` as semantic paragraphs with a bolded lead each · `Checked` narrating the verification with reproducible output · calibrated wording (a doc-internal contradiction, not "this breaks the app").
+
+*(More examples — a nit, the footer — to be added from later runs.)*
