@@ -8,12 +8,12 @@ These govern *how* a comment reads. They are the non-negotiable part of the skil
 
 ### 1. Tentative framing, always
 
-Open with `looks like` / `perhaps` / `I think` / `I wonder if` / `might be worth` / `could we`. No imperatives, no "this is wrong", no "revert this", no "please add", no "you should". You are raising a question for the owner to decide, not issuing an order. The owner has context you don't.
+Open with a tentative phrasing from the **[`phrasing.dictionary.md`](./phrasing.dictionary.md)** — never an imperative or an accusation (its *Avoid* category lists the ones to stay away from). You are raising a question for the owner to decide, not issuing an order. The owner has context you don't.
 
 - ❌ "Revert this token and solve the dot locally."
 - ✅ "Looks like this redefines a shared `sys` token globally — I wonder if a dedicated token would keep the two intents separate?"
 
-Absolutes read as accusations. Avoid `always` / `never` / `obviously` / `just` ("just do X" implies it's trivial and they missed it).
+Absolutes read as accusations — the dictionary's *Avoid* category names them.
 
 ### 2. Anchor precisely (on real files)
 

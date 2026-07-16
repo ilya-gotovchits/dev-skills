@@ -11,7 +11,7 @@ A growable bank of phrasings the drafting model picks from to keep comments tent
 `Should we maybe…?` · `Would it make sense to…?` · `Do you think it's worth…?` · `Any concern that…?` · `Might it be cleaner to…?` · `Wonder if it's worth …?` · `I might be missing something — is … intended?` · `Would it be safer to…?`
 
 ## Surfacing uncertainty / missing context
-`I might be missing context, but…` · `Happy to be told this is already handled.` · `Not sure if this is intentional —` · `Correct me if the design covers this,`
+`I might be missing context, but…` · `Not sure if this is intentional —` · `Correct me if the design covers this,`
 
 ## Asking about intent instead of assuming
 `Is the intent here to…?` · "Was `X` considered?" · `What happens when…?`

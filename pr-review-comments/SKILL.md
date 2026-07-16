@@ -138,7 +138,7 @@ End with a **footer** routing anything that belongs on a *different* PR (archite
 
 Read `references/conventions.md` for the full seven, and `references/phrasing.dictionary.md` for the bank of openers/framings to draw tone from. The essentials:
 
-1. **Tentative framing, always** — open with a phrasing from the dictionary (`looks like` / `I wonder if` / `might be worth` / soft questions). No imperatives, no "this is wrong", no "revert this" (see the dictionary's *Avoid* list).
+1. **Tentative framing, always** — open with a phrasing from `references/phrasing.dictionary.md`; never an imperative or accusation (its *Avoid* category lists them).
 2. **Anchor precisely** — labeled `file` / `path` / `line` / `anchor`, each on its own line (see the contract). One concern per comment.
 3. **Calibrate to evidence** — see the verification gate above.
 4. **Separate altitudes** — code nits on the impl PR; architecture/direction on the design PR.
