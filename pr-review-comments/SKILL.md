@@ -34,14 +34,23 @@ If the human clearly wants *drafted comments they post themselves*, this skill i
 
 ## Setup (run at the START of every review — make placement unambiguous)
 
-1. From the input (PR URL / number) resolve `org/repo`, PR number, base branch, title/body, and the linked design PR if any. Use `gh` CLI or GitHub MCP for metadata.
+1. From the input (PR URL / number) resolve `org/repo`, PR number, base branch, **head branch + head sha**, title/body, requested reviewers, and the linked design PR if any. Use `gh` or GitHub MCP **for lightweight metadata only** — never pull file contents or per-file patches through the API (`get_pull_request_files` blows past the token limit on large PRs); the change set and file contents come from the local checkout (steps 3–4).
 2. Resolve the Jira ticket `EFF-xxxxx` — from the PR branch name; if absent, from the commit messages. If it still can't be resolved, ask the human once; if unavailable, fall back to a `pr-<PR-number>` folder and flag it in the footer — never silently invent a placeholder ticket.
-3. **Check out the PR branch into a per-PR folder** so you review *real files with real line numbers*, not the diff's approximate ones:
+3. **Check the PR out into a per-PR folder as a `git worktree`** so you review *real files with real line numbers*, not the diff's approximate ones:
    ```
    code-review/efficiently-EFF-<ticket>/
    ```
-   Clone the repo there and `gh pr checkout <number>` (or reuse/update the folder if it already exists). Working with real files means anchors are exact and you never fetch file contents through separate API calls.
-4. Get the change set with `gh pr diff` / `git diff <base>...<pr-branch>` to know *which* files/lines belong to the PR, then map them onto the checked-out files. Record the PR branch HEAD sha (`git rev-parse HEAD`) — it goes in the frontmatter as `head_sha` so the publisher anchors comments to the right commit.
+   - **Prefer an existing local clone** of the repo (look for a sibling checkout first). Into it, **fetch both the base and head refs fresh** — so `origin/<base>` is the real remote tip, not a stale one — then add a **detached** worktree pinned to the PR head sha:
+     ```
+     git -C <clone> fetch origin <headRef>:refs/remotes/origin/<headRef> <baseRef>:refs/remotes/origin/<baseRef>
+     git -C <clone> worktree add --detach code-review/efficiently-EFF-<ticket> <head_sha>
+     ```
+     The worktree is detached at the head sha — independent of whatever branch the clone sits on, and it never disturbs the clone's working tree. A husky / `post-checkout` hook may exit non-zero on checkout — the checkout still succeeded; don't treat it as a failure.
+   - **Fallback if no local clone exists — use git, not the API.** `git clone <clone_url>` (prefer `--filter=blob:none`: keeps full history so the merge-base resolves, skips unneeded blobs), then fetch refs + worktree as above. `gh pr checkout` is fine when `gh` is installed, but `gh` is optional — plain `git` is the baseline; never reconstruct the tree from `get_pull_request_files` / `get_file_contents`.
+   - Reuse/update the folder if it already exists.
+
+   Working with real files means anchors are exact and you never fetch file contents through the API.
+4. Get the change set **from the worktree with a three-dot diff**: `git -C <worktree> diff origin/<base>...HEAD`. `A...B` diffs from the **merge-base**, matching GitHub's "Files changed". **Never a two-dot diff** (`origin/<base>..HEAD`) — it folds in commits that landed on the base *after* the branch forked and inflates the change set. **Sanity-check the `--stat`:** if it shows far more than the PR's scale (its `size/*` label / your expectation), the base ref is stale or the clone is shallow → re-fetch (`--unshallow` / enough depth) until the merge-base resolves. Record the head sha (`git -C <worktree> rev-parse HEAD`) for the frontmatter `head_sha`.
 5. Output goes to, and only to:
    ```
    code-review/efficiently-EFF-<ticket>/pr-<PR-number>-review-comments.md
@@ -63,6 +72,8 @@ For each draft comment, pull out its factual claims and verify each against the 
 | "duplicated" | confirm the second copy actually exists | e.g. a doc in both this PR and the design PR |
 
 **Calibrate wording to exactly what the check showed.** Couldn't verify? Downgrade to what's known ("this changes a shared token's semantics", not "this breaks the app") and lower the severity — never assert to fill the gap.
+
+**When the PR is a design / spec doc (not code):** verification maps onto the doc's *factual claims* — the cited paths/files exist, the referenced symbols / types / directives are as described, internal counts reconcile, links resolve, and any stated prerequisite is actually true today (grep for it). And the **altitude inverts**: on a design-doc PR, architecture/direction **is** on-topic — engage it here, don't route it away, because this *is* the design PR (conventions §4/§5 assume a code impl PR sitting downstream of an approved design).
 
 Record each check in a **collapsible `<details>` block inside the comment** — visible to the author on a click, but folded so it doesn't clutter the main text (GitHub renders `<details>` in PR comments):
 
