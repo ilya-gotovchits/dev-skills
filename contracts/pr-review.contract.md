@@ -21,9 +21,10 @@ base: main                      # base branch
 head_sha: a1b2c3d4              # HEAD commit of the PR branch at review time —
                                 # the commit inline comments anchor to
 counts:                         # findings by severity (derived, human sanity-check)
-  blocking: 1
-  non_blocking: 2
-  nit: 3
+  critical: 1
+  important: 2
+  minor: 3
+  suggestion: 0
 ---
 ```
 
@@ -72,7 +73,7 @@ Two shape rules keep the file scannable instead of a wall of text:
 
 | Field | Parsed from | Required | Notes |
 |---|---|---|---|
-| severity | emoji in the `###` line | yes | 🔴 blocking · 🟠 non_blocking · 🟡 nit |
+| severity | emoji in the `###` line | yes | 🔴 critical · 🟠 important · 🟡 minor · 🔵 suggestion |
 | title | `###` line, after the emoji | yes | short human label |
 | path | `path:` line | yes | repo-root-relative → GitHub `path` |
 | line | `line:` line | yes | integer (strip a leading `~`) → GitHub line |

@@ -50,7 +50,7 @@ Credit what's done well, specifically. Judge the code, not the presumed authorin
 
 ### 7. Group by severity, stay humble
 
-Group by 🔴 blocking / 🟠 non-blocking / 🟡 nit in the file, but keep every individual comment humble regardless of severity. Severity ranks the *concern*; it never licenses a harsher *tone*.
+Group by 🔴 Critical / 🟠 Important / 🟡 Minor / 🔵 Suggestion in the file, but keep every individual comment humble regardless of severity. Severity ranks the *concern*; it never licenses a harsher *tone*. (🔴 bugs/security/broken-behavior/hard-rule breaks · 🟠 likely-real problems, Nx structure/boundary/tag/naming · 🟡 style + small structural notes · 🔵 library-extraction & optional refactors.)
 
 ---
 

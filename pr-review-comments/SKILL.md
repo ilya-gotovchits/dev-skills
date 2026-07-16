@@ -56,9 +56,19 @@ If the human clearly wants *drafted comments they post themselves*, this skill i
    code-review/efficiently-EFF-<ticket>/pr-<PR-number>-review-comments.md
    ```
 
+## Find candidates (code PRs: run `/code-review` as a finder)
+
+Gather *candidate* findings before verifying — from two sources:
+
+- **Your own read** of the change set in the worktree.
+- **`/code-review` as a finder subagent — default ON for PRs that touch code.** Dispatch the built-in `/code-review` (a subagent, **read-only — never `--comment` / `--fix`**) over the PR change set and collect what it surfaces (correctness bugs, simplification, efficiency). Integration seam: `/code-review` reviews a *working diff*, but the PR is committed on the branch — point it at the PR change set (e.g. `git -C <worktree> reset --mixed origin/<base>` makes the whole PR show as the working diff without altering file contents or line numbers). Validate this wiring on the first real code-PR run.
+- **Skip the `/code-review` pass for docs-only PRs** — it's a code reviewer and finds nothing useful on prose. Note the skip in `Overview`, and verify the doc's claims yourself (see the design/spec-doc note below).
+
+**Everything from `/code-review` is an *unverified candidate*, exactly like your own drafts.** It does not arrive with a severity you can trust — cross-model output is not verification (see the gate below). Run every candidate through the same check, assign severity/wording yourself, then **dedupe**: one calibrated finding per issue, in our format. Never write "code-review agrees, so it's real."
+
 ## Verification before severity (the core — do not skip)
 
-**No severity and no impact claim ships without evidence from the checked-out repo.** Agreement from a second model or a re-run is NOT verification — only grepping/tracing the actual code (ideally a human exercising the change) closes the "did anyone actually check this?" gap. **Overstating impact is the #1 failure mode.**
+**No severity and no impact claim ships without evidence from the checked-out repo.** Agreement from a second model (including `/code-review`) or a re-run is NOT verification — only grepping/tracing the actual code (ideally a human exercising the change) closes the "did anyone actually check this?" gap. **Overstating impact is the #1 failure mode.**
 
 For each draft comment, pull out its factual claims and verify each against the checkout:
 
@@ -84,11 +94,12 @@ Record each check under the **`Checked`** sub-section of the finding's collapsib
 
 ## Severity
 
-- 🔴 **blocking** — only with concrete evidence of real breakage/regression/data-loss and confirmed consumers.
-- 🟠 **non-blocking** — real but non-critical, evidence-backed.
-- 🟡 **nit** — style/clarity; no impact claim required.
+- 🔴 **Critical** — bugs, security, broken behavior, hard `CLAUDE.md`-rule violations. Only with concrete evidence of real breakage/regression/data-loss and confirmed consumers.
+- 🟠 **Important** — likely real problems: Nx structure/boundary/tag/naming violations, blast-radius concerns. Evidence-backed.
+- 🟡 **Minor** — style, small structural notes, minor improvements. No impact claim required.
+- 🔵 **Suggestion** — library extraction, optional refactors — take-it-or-leave-it, explicitly optional.
 
-Group by severity in the file. Every individual comment still stays humble.
+Group by severity in the file (🔴 → 🟠 → 🟡 → 🔵). Every individual comment still stays humble — severity ranks the *concern*, never licenses a harsher *tone*.
 
 ## Output format
 
@@ -103,7 +114,7 @@ repo: <owner/repo>
 ticket: EFF-<ticket>
 base: <base-branch>
 head_sha: <pr-head-sha>
-counts: { blocking: 0, non_blocking: 0, nit: 0 }
+counts: { critical: 0, important: 0, minor: 0, suggestion: 0 }
 ---
 
 # PR #<num> (EFF-<ticket>) — inline review comments
@@ -111,14 +122,14 @@ counts: { blocking: 0, non_blocking: 0, nit: 0 }
 > Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
 ```
 
-After the note, add a short **`## Overview`** — the whole-PR read at the top: a one-line verdict (what's blocking vs not), any specific credit, and PR-level/scope framing (e.g. "this *is* the design PR, so architecture is on-topic here"; or the ticket-fallback flag). Recommended; skip only if there is genuinely nothing to say at the PR level.
+After the note, add a short **`## Overview`** — the whole-PR read at the top: a one-line verdict (anything 🔴 critical, or just 🟠/🟡/🔵?), any specific credit, and PR-level/scope framing (e.g. "this *is* the design PR, so architecture is on-topic here"; or the ticket-fallback flag). Recommended; skip only if there is genuinely nothing to say at the PR level.
 
-Then group comments under severity headings (🔴 / 🟠 / 🟡), with a `---` rule between every comment so each block is visually separate. One comment block:
+Then group comments under severity headings (🔴 / 🟠 / 🟡 / 🔵), with a `---` rule between every comment so each block is visually separate. One comment block:
 
 ````md
 ---
 
-### N. <🔴|🟠|🟡> <short concern title>
+### N. <🔴|🟠|🟡|🔵> <short concern title>
 
 ```
 file:   <basename.ext>
