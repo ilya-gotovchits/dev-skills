@@ -35,7 +35,7 @@ If the human clearly wants *drafted comments they post themselves*, this skill i
 ## Setup (run at the START of every review — make placement unambiguous)
 
 1. From the input (PR URL / number) resolve `org/repo`, PR number, base branch, **head branch + head sha**, title/body, requested reviewers, and the linked design PR if any. Use `gh` or GitHub MCP **for lightweight metadata only** — never pull file contents or per-file patches through the API (`get_pull_request_files` blows past the token limit on large PRs); the change set and file contents come from the local checkout (steps 3–4).
-2. Resolve the Jira ticket `EFF-xxxxx` — from the PR branch name; if absent, from the commit messages. If it still can't be resolved, ask the human once; if unavailable, fall back to a `pr-<PR-number>` folder and flag it in the footer — never silently invent a placeholder ticket.
+2. Resolve the Jira ticket `EFF-xxxxx` — from the PR branch name; if absent, from the commit messages. If it still can't be resolved, ask the human once; if unavailable, fall back to a `pr-<PR-number>` folder and flag it in the `Overview` — never silently invent a placeholder ticket.
 3. **Check the PR out into a per-PR folder as a `git worktree`** so you review *real files with real line numbers*, not the diff's approximate ones:
    ```
    code-review/efficiently-EFF-<ticket>/
@@ -111,6 +111,8 @@ counts: { blocking: 0, non_blocking: 0, nit: 0 }
 > Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
 ```
 
+After the note, add a short **`## Overview`** — the whole-PR read at the top: a one-line verdict (what's blocking vs not), any specific credit, and PR-level/scope framing (e.g. "this *is* the design PR, so architecture is on-topic here"; or the ticket-fallback flag). Recommended; skip only if there is genuinely nothing to say at the PR level.
+
 Then group comments under severity headings (🔴 / 🟠 / 🟡), with a `---` rule between every comment so each block is visually separate. One comment block:
 
 ````md
@@ -146,7 +148,7 @@ Two things keep the file scannable, not a wall of text:
 - **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
 - **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` and `**Checked**` are split by a `---` rule. **Two registers:** the visible ask is telegraphic; inside the fold (opt-in reading) write *expansively* — semantic paragraphs (one facet each), **bold** the key claim, bullets only for real enumeration; `Checked` narrates what you set out to confirm → how → what it showed, with raw commands in a code block. Guardrails: structure it (paragraphs + emphasis, never a monolith), and **length never inflates certainty** — expand the explanation, keep every claim tied to `Checked`, hedge the unverified.
 
-End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
+If anything belongs on a *different* PR (architecture/direction → the design PR, not this impl PR), don't drop it and don't force it inline — put it in an optional trailing **`## Routed elsewhere`** section, named explicitly ("→ design PR #NNNN"). Omit the section entirely when there's nothing to route.
 
 ## Conventions (comment style — the non-negotiable part)
 
@@ -164,7 +166,7 @@ Read `references/conventions.md` for the full seven, and `references/phrasing.di
 
 - Writing "revert this" / "you should" / "please add" → imperative. Rewrite tentatively.
 - Asserting app-wide impact you haven't grepped → overstatement. Verify or downgrade.
-- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to the footer/design PR.
+- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to *Routed elsewhere* / the design PR.
 - No `Checked` section in the `<details>Details</details>` block on a comment carrying a severity → you skipped the gate.
 - About to post/approve/request-changes → STOP. You only write the file.
 
@@ -174,6 +176,6 @@ Read `references/conventions.md` for the full seven, and `references/phrasing.di
 |---|---|
 | "I can't check the repo but the concern is obvious" | Then downgrade the wording and severity. Obvious-feeling ≠ verified. |
 | "It's faster to just tell them to revert" | Directives skip the owner's judgement. Frame it as a question. |
-| "The design itself is questionable" | Not on the impl PR. Footer → design PR. |
+| "The design itself is questionable" | Not on the impl PR. Route it → design PR. |
 | "A second opinion agrees, so it's confirmed" | Cross-model agreement isn't verification. Grep the code. |
 | "Quoting the line is enough, I'll skip the line number" | Real line numbers are cheap now — you have the checkout. Use them. |
