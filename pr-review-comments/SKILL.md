@@ -105,17 +105,17 @@ counts: { blocking: 0, non_blocking: 0, nit: 0 }
 
 Then group comments under severity headings (🔴 / 🟠 / 🟡), with a `---` rule between every comment so each block is visually separate. One comment block:
 
-```md
+````md
 ---
 
 ### N. <🔴|🟠|🟡> <short concern title>
 
-file:
-    <basename.ext>
-path:
-    <path/from/repo-root/to/file.ext>
-line: ~NN
-anchor: `<exact line text>`
+```
+file:   <basename.ext>
+path:   <path/from/repo-root/to/file.ext>
+line:   <NN>
+anchor: <exact line text>
+```
 
 > <tentative comment — one concern, opens with a soft framing/question>
 
@@ -125,12 +125,12 @@ you couldn't verify>
 
 <details><summary>Checked</summary>
 
-<what you ran → what you found; wrap in a fenced code block if multi-line>
+<what you ran → what you found>
 
 </details>
-```
+````
 
-**Why each locator field is on its own line:** so the author can select and copy any one alone — the full `path` to open/search the file, the `anchor` to jump to the exact line — without dragging across the rest. `file` (basename) is for a fast visual scan; `path` (repo-root-relative) is the copy-ready locator.
+**The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
 
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
 

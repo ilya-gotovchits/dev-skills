@@ -33,15 +33,15 @@ Required: `pr`, `repo`, `base`, `head_sha`. `ticket` falls back to `pr-<N>`.
 
 Body = one block per finding, separated by `---`, grouped under severity headings. Every block has this exact shape:
 
-```md
+````md
 ### <N>. <severity-emoji> <short title>
 
-file:
-    <basename.ext>
-path:
-    <path/from/repo-root>
-line: <NN>
-anchor: `<exact source line text>`
+```
+file:   <basename.ext>
+path:   <path/from/repo-root>
+line:   <NN>
+anchor: <exact source line text>
+```
 
 > <comment — one concern, tentative>
 
@@ -52,7 +52,9 @@ anchor: `<exact source line text>`
 <evidence: commands run → what was found>
 
 </details>
-```
+````
+
+The locator is a **fenced code block** on purpose: outside a fence, adjacent markdown lines collapse into one paragraph (soft newlines render as spaces), so `file`/`path`/`line`/`anchor` would run together in GitHub's rendered view. A fence keeps them on distinct lines, gives a copy button, and renders the `anchor` text literally even when it contains backticks or markdown. The parser reads each `label:` line inside the fence.
 
 ### Field reference
 
