@@ -38,7 +38,7 @@ State the evidence *in* the comment when it strengthens the point: "there are ~1
 
 ### 4. Separate altitudes
 
-Code-level nits go inline on the impl PR. Architecture/direction goes on the *design* PR, not the impl PR — an impl PR that faithfully implements an approved design is not the place to relitigate the design. Put cross-PR notes in the trailing `Routed elsewhere` section, named explicitly ("→ design PR #NNNNN").
+Code-level nits go inline on the impl PR. Architecture/direction goes on the *design* PR, not the impl PR — an impl PR that faithfully implements an approved design is not the place to relitigate the design. Put cross-PR notes in the trailing `Other` section, named explicitly ("→ design PR #NNNNN").
 
 ### 5. Faithful-to-spec ≠ defect
 
@@ -146,4 +146,4 @@ So the contradiction is internal to the doc: the architecture sketch shows `grid
 
 What it demonstrates: tentative one-sentence ask · labeled locator in a fenced block (copy-ready, renders on distinct lines) · `Why` as semantic paragraphs with a bolded lead each · `Checked` narrating the verification with reproducible output · calibrated wording (a doc-internal contradiction, not "this breaks the app").
 
-*(More examples — a nit, the `Overview`, a `Routed elsewhere` note — to be added from later runs.)*
+*(More examples — a nit, the `Overview`, an `Other` note — to be added from later runs.)*

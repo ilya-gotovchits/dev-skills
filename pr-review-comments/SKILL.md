@@ -148,7 +148,7 @@ Two things keep the file scannable, not a wall of text:
 - **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
 - **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` and `**Checked**` are split by a `---` rule. **Two registers:** the visible ask is telegraphic; inside the fold (opt-in reading) write *expansively* — semantic paragraphs (one facet each), **bold** the key claim, bullets only for real enumeration; `Checked` narrates what you set out to confirm → how → what it showed, with raw commands in a code block. Guardrails: structure it (paragraphs + emphasis, never a monolith), and **length never inflates certainty** — expand the explanation, keep every claim tied to `Checked`, hedge the unverified.
 
-If anything belongs on a *different* PR (architecture/direction → the design PR, not this impl PR), don't drop it and don't force it inline — put it in an optional trailing **`## Routed elsewhere`** section, named explicitly ("→ design PR #NNNN"). Omit the section entirely when there's nothing to route.
+Anything that isn't an inline finding and isn't part of the `Overview` goes in an optional trailing **`## Other`** section — chiefly cross-PR routing (a concern that belongs on a *different* PR: architecture/direction → the design PR, not this impl PR — named explicitly, "→ design PR #NNNN"), plus off-diff or tooling notes. Don't drop such items and don't force them inline; but omit the whole section when there's nothing for it. (`Overview` = the overall read; `Other` = strays that are neither a line-anchored finding nor part of that read.)
 
 ## Conventions (comment style — the non-negotiable part)
 
@@ -166,7 +166,7 @@ Read `references/conventions.md` for the full seven, and `references/phrasing.di
 
 - Writing "revert this" / "you should" / "please add" → imperative. Rewrite tentatively.
 - Asserting app-wide impact you haven't grepped → overstatement. Verify or downgrade.
-- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to *Routed elsewhere* / the design PR.
+- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to *Other* / the design PR.
 - No `Checked` section in the `<details>Details</details>` block on a comment carrying a severity → you skipped the gate.
 - About to post/approve/request-changes → STOP. You only write the file.
 

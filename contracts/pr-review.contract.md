@@ -33,7 +33,7 @@ Required: `pr`, `repo`, `base`, `head_sha`. `ticket` falls back to `pr-<N>`.
 
 Body = one block per finding, separated by `---`, grouped under severity headings. Every block has this exact shape.
 
-The file may also carry a leading `## Overview` (whole-PR verdict/credit/framing) and a trailing `## Routed elsewhere` (cross-PR routing) — both are **prose, not findings**. A consumer treats only `### N.` blocks under a severity heading (🔴/🟠/🟡) as findings to post; `Overview` and `Routed elsewhere` are never posted as inline comments.
+The file may also carry a leading `## Overview` (whole-PR verdict/credit/framing) and a trailing `## Other` (cross-PR routing + any non-inline stray) — both are **prose, not findings**. A consumer treats only `### N.` blocks under a severity heading (🔴/🟠/🟡) as findings to post; `Overview` and `Other` are never posted as inline comments.
 
 ````md
 ### <N>. <severity-emoji> <short title>
