@@ -32,7 +32,7 @@ anchor: `--eff-sys-shape-pill: 20px;`
 
 ### 3. Calibrate claims to evidence
 
-Do NOT assert impact you haven't checked. If a claim needs verification (e.g. "global token, big blast radius") either verify it first (grep the checked-out repo) or downgrade the wording to match what's actually known ("this changes a shared token's semantics", not "this breaks half the app"). Record the check in a collapsible `<details><summary>Checked</summary>` block inside the comment — visible on a click, folded by default so it doesn't clutter. **Overstating is the failure mode to avoid** — an inflated claim that turns out wrong costs you credibility on every later comment.
+Do NOT assert impact you haven't checked. If a claim needs verification (e.g. "global token, big blast radius") either verify it first (grep the checked-out repo) or downgrade the wording to match what's actually known ("this changes a shared token's semantics", not "this breaks half the app"). Record the check under the **Checked** sub-section of the finding's collapsible `<details><summary>Details</summary>` block — folded by default, visible on a click, so it doesn't clutter the main text. **Overstating is the failure mode to avoid** — an inflated claim that turns out wrong costs you credibility on every later comment.
 
 State the evidence *in* the comment when it strengthens the point: "there are ~14 consumers of this token" lands harder and more honestly than "this is used everywhere".
 
@@ -59,7 +59,7 @@ Group by 🔴 blocking / 🟠 non-blocking / 🟡 nit in the file, but keep ever
 A strong comment usually has three moves, in order:
 
 1. **Observation** — the one-line `> …` comment: what you see, neutrally, in a soft framing. "Looks like the dot points at the shared pill token."
-2. **Why it matters** — a visible `**Why it matters:**` paragraph expanding the concern, calibrated to what you checked. "After the `full → 20px` change above, the roundness now depends on the clamp rather than intent, and this token is shared across other consumers." The supporting greps/traces go in the folded `<details><summary>Checked</summary>` block beneath it — evidence stays visible-on-click, not hidden.
+2. **Why it matters** — bulleted reasoning inside the folded `<details><summary>Details</summary>` block (`**Why it matters**` sub-section), calibrated to what you checked: one point per line, e.g. "After the `full → 20px` change above, roundness depends on the clamp, not intent" / "the token is shared across other consumers." The supporting greps/traces sit in the `**Checked**` sub-section of the same block, split off by a `---` rule — folded, visible on a click, never hidden.
 3. **Optional path forward, as a question** — never mandated. "Perhaps a dot-specific token would state 'always a circle' more directly?"
 
 Move 3 is optional. Sometimes the best comment just surfaces the observation and asks "is this intended?" — proposing a fix you haven't thought through invites a worse solution than the owner's.
@@ -103,4 +103,4 @@ Spend attention where it matters; a pile of trivial nits buries the one comment 
 
 ## Canonical example
 
-A worked example is intentionally left out until we run the skill on a live PR — then the `<details>Checked</details>` blocks reflect real greps and the line numbers are real, not fabricated. Populate this section from the first real run.
+A worked example is intentionally left out until we run the skill on a live PR — then the `<details>Details</details>` blocks reflect real greps and the line numbers are real, not fabricated. Populate this section from the first real run.

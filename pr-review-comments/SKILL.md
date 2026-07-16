@@ -75,14 +75,11 @@ For each draft comment, pull out its factual claims and verify each against the 
 
 **When the PR is a design / spec doc (not code):** verification maps onto the doc's *factual claims* — the cited paths/files exist, the referenced symbols / types / directives are as described, internal counts reconcile, links resolve, and any stated prerequisite is actually true today (grep for it). And the **altitude inverts**: on a design-doc PR, architecture/direction **is** on-topic — engage it here, don't route it away, because this *is* the design PR (conventions §4/§5 assume a code impl PR sitting downstream of an approved design).
 
-Record each check in a **collapsible `<details>` block inside the comment** — visible to the author on a click, but folded so it doesn't clutter the main text (GitHub renders `<details>` in PR comments):
+Record each check under the **`Checked`** sub-section of the finding's collapsible `<details><summary>Details</summary>` block — visible to the author on a click, but folded so it doesn't clutter the main text (GitHub renders `<details>` in PR comments). The `Details` block holds both `**Why it matters**` and `**Checked**`, split by a `---` rule (see Output format):
 
 ```md
-<details><summary>Checked</summary>
-
-grep -rn "eff-sys-shape-pill" → 3 consumers (dot, chip, tag); dot clamps 8px
-
-</details>
+**Checked**
+- grep -rn "eff-sys-shape-pill" → 3 consumers (dot, chip, tag); dot clamps 8px
 ```
 
 ## Severity
@@ -130,12 +127,15 @@ anchor: <exact line text>
 
 > <the ask — one tentative sentence; this is what gets skimmed>
 
+<details><summary>Details</summary>
+
 **Why it matters**
 - <one distinct point per line; **bold** the key term>
 - <another point — keep each to a line; only what the evidence supports>
 
-<details><summary>Checked</summary>
+---
 
+**Checked**
 - <what you ran → what you found, one per line>
 
 </details>
@@ -144,7 +144,7 @@ anchor: <exact line text>
 Two things keep the file scannable, not a wall of text:
 
 - **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
-- **`>` is one sentence, `Why it matters` is bullets — never two dense paragraphs.** The `>` quote is the ask; the reasoning is a short bulleted list (one point per line, key term bold); long evidence chains go in `<details>`. Expanded ≠ walled: the reader scans title → ask → bullets.
+- **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` (short bullets) and `**Checked**` (evidence) are split by a `---` rule. Expanded ≠ walled: the visible file reads as title → ask, detail on demand.
 
 End with a **footer** routing anything that belongs on a *different* PR (architecture/direction → the design PR, not the impl PR).
 
@@ -165,7 +165,7 @@ Read `references/conventions.md` for the full seven, and `references/phrasing.di
 - Writing "revert this" / "you should" / "please add" → imperative. Rewrite tentatively.
 - Asserting app-wide impact you haven't grepped → overstatement. Verify or downgrade.
 - Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to the footer/design PR.
-- No `<details>Checked</details>` block on a comment carrying a severity → you skipped the gate.
+- No `Checked` section in the `<details>Details</details>` block on a comment carrying a severity → you skipped the gate.
 - About to post/approve/request-changes → STOP. You only write the file.
 
 ## Rationalization table

@@ -45,12 +45,15 @@ anchor: <exact source line text>
 
 > <the ask — ONE tentative sentence; this is what gets skimmed>
 
+<details><summary>Details</summary>
+
 **Why it matters**
 - <one distinct point per line; **bold** the key term>
 - <another point — keep each to a line>
 
-<details><summary>Checked</summary>
+---
 
+**Checked**
 - <evidence: commands run → what was found, one per line>
 
 </details>
@@ -59,7 +62,7 @@ anchor: <exact source line text>
 Two shape rules keep the file scannable instead of a wall of text:
 
 - **The locator is a fenced code block** on purpose: outside a fence, adjacent markdown lines collapse into one paragraph (soft newlines render as spaces), so `file`/`path`/`line`/`anchor` would run together in GitHub's rendered view. A fence keeps them on distinct lines, gives a copy button, and renders the `anchor` text literally even when it contains backticks or markdown. The parser reads each `label:` line inside the fence.
-- **`> comment` is one sentence; `Why it matters` is a bulleted list, not a paragraph.** The `>` quote states the ask; the reasoning goes in short bullets (one point per line), and any long evidence chain drops into `<details>`. Expanded ≠ dense — the reader scans title → ask → bullets.
+- **Only the ask is visible; the rest folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence (what gets skimmed). Inside the `Details` block, `**Why it matters**` (short bullets, one point per line) and `**Checked**` (evidence) are two sub-sections split by a `---` rule. Expanded ≠ walled — the visible file reads as title → ask, detail on demand.
 
 ### Field reference
 
@@ -71,8 +74,8 @@ Two shape rules keep the file scannable instead of a wall of text:
 | line | `line:` line | yes | integer (strip a leading `~`) → GitHub line |
 | anchor | `anchor:` backticked text | yes | exact source text; used to detect line drift |
 | comment | the `>` quote | yes | one-sentence ask; opening of the posted body |
-| why | `**Why it matters**` bullets | yes | bulleted list; appended to the posted body |
-| evidence | `<details>` block | optional | context; not posted unless configured |
+| why | `**Why it matters**` bullets, inside `<details>Details` | yes | bulleted list; appended to the posted body |
+| evidence | `**Checked**` sub-section of the `<details>Details` block | optional | context; not posted unless configured |
 
 ## 3. Mapping finding → GitHub inline comment (for the publisher)
 
