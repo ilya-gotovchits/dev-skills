@@ -36,38 +36,7 @@ Body = one block per finding, separated by `---`, grouped under severity heading
 
 The file may also carry a leading `## Overview` (whole-PR verdict/credit/framing) and a trailing `## Other` (cross-PR routing + any non-inline stray) — both are **prose, not findings**. A consumer treats only `### N.` blocks under a severity heading (🔴/🟠/🟡) as findings to post; `Overview` and `Other` are never posted as inline comments.
 
-````md
-### <N>. <severity-emoji> <short title>
-
-```
-file:   <basename.ext>
-path:   <path/from/repo-root>
-line:   <NN>
-anchor: <exact source line text>
-```
-
-> <the ask — ONE tentative sentence; this is what gets skimmed>
-
-<details><summary>Details</summary>
-
-**Why it matters**
-- <one distinct point per line; **bold** the key term>
-- <another point — keep each to a line>
-
----
-
-**Checked**
-- <evidence: commands run → what was found, one per line>
-
-</details>
-````
-
-Two shape rules keep the file scannable instead of a wall of text:
-
-- **The locator is a fenced code block** on purpose: outside a fence, adjacent markdown lines collapse into one paragraph (soft newlines render as spaces), so `file`/`path`/`line`/`anchor` would run together in GitHub's rendered view. A fence keeps them on distinct lines, gives a copy button, and renders the `anchor` text literally even when it contains backticks or markdown. The parser reads each `label:` line inside the fence.
-- **Only the ask is visible; the rest folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence (what gets skimmed). Inside the block, `**Why it matters**` and `**Checked**` are two sub-sections split by a `---` rule. The visible file reads as title → ask; depth is on demand.
-
-  **Two registers.** The visible ask is telegraphic. Inside `Details` — opt-in reading — write *expansively*: semantic paragraphs (one facet each: observation → impact → context), **bold** the key claim of each, bullets only where genuinely enumerating. `Checked` narrates *what you set out to confirm → how → what it showed → the takeaway*, with the raw commands/results in a code block so they stay reproducible. Two guardrails: (1) structure, never a monolith — paragraphs + emphasis so even long detail reads in steps; (2) **calibration is unchanged by length** — expand the *explanation*, never the *certainty*; every claim still traces to `Checked`, and anything unverified is hedged. `why` is posted (appended to the comment body), so its length reaches the author; `Checked` is not posted.
+**The finding-block shape itself — the fenced locator, the one-line lead, the folded `<details>Details</details>` with `Why it matters` + `Checked`, the scannability and two-registers rules — is defined once in [`review-core.md`](../shared/review-core.md) ("Report format"). The producer writes that shape; this contract only pins the fields a consumer must parse out of it, below.** Note for the publisher: `why` is posted (appended to the comment body); `Checked` is not.
 
 ### Field reference
 

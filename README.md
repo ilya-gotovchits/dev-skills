@@ -46,7 +46,14 @@
 
 - `contracts/pr-review.contract.md` — структура файла ревью (frontmatter + finding-блоки) + маппинг finding → inline-коммент GitHub. Общий для `pr-review-comments` (пишет) и будущего `pr-comments-publisher` (читает и постит).
 
+## Общее ядро (`shared/`)
+
+Тон-агностичная методология, переиспользуемая несколькими скилами (симлинк из `references/` каждого).
+
+- `shared/review-core.md` — ядро ревью: Principle #0, find-candidates → verification gate, 4-уровневая шкала, анатомия находки и **формат отчёта** (finding-блок, `Overview`, `Other`, сканируемость). Общий для `pr-review-comments` и `self-review`. Шелл-скил добавляет тон, цель, назначение вывода и frontmatter.
+
 ## Правила
 
-- `pr-review-comments` — черновики inline-комментариев для ревью чужого PR (пишет `.md` по контракту, ничего не постит).
+- `pr-review-comments` — шелл «чужой PR»: тентативный тон, никогда не постит, paste-ready `.md` (ядро + publisher-контракт).
+- `self-review` — *(план)* шелл «свой код»: тот же формат/шкала, прямой тон, пунш-лист для себя (ядро, без publisher-контракта).
 - `pr-comments-publisher` — *(план)* читает файл ревью и постит комментарии в GitHub от имени пользователя (pending review).

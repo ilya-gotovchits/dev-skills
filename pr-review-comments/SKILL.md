@@ -5,32 +5,30 @@ description: Use when asked to review SOMEONE ELSE'S GitHub PR and draft inline 
 
 # PR Review Comments
 
-## Overview
+Turn "look at this PR" into a `.md` file of **inline** review comments — anchored to a real file + line, tentatively worded, calibrated to evidence, grouped by severity, ready to paste manually.
 
-Turn "look at this PR" into a `.md` file of **inline** review comments — each anchored to a real file + line, tentatively worded, calibrated to evidence, grouped by severity, ready to paste manually.
+**REQUIRED CORE:** the review methodology — Principle #0, the find-candidates → verification gate, the 4-level severity taxonomy, and the report-body format (finding block, `Overview`, `Other`, scannability) — lives in **`references/review-core.md`**. Read it. This skill is the *someone-else's-PR shell* over that core: it adds tone (tentative), the never-posts rule, PR checkout mechanics, and the publisher-ready output.
 
 **Two rules that override everything else:**
 
 - **This skill never posts.** It writes a file. The human reads, edits, and posts. Do not call any GitHub write API, do not comment on the PR, do not approve/request-changes.
-- **Principle #0 — style is mine, substance is the repo's.** Comment *style* (tone, anchors, calibration, severity) comes from this skill and is non-negotiable. Judgements about *the code itself* (what's correct, what's a convention) defer to the repo: read `CLAUDE.md` / `AGENTS.md` / `.cursor/rules` / neighboring code first. No repo rules found → judge more cautiously and say so.
+- **Principle #0 — style is mine, substance is the repo's** (core). Comment *style* (tone, calibration, severity) is non-negotiable here; judgements about the code defer to the repo (`CLAUDE.md` / `AGENTS.md` / `.cursor/rules` / neighbors).
 
 ## When to use / not
 
 - **Use when:** reviewing *someone else's* PR, producing paste-ready comments, not applying anything.
-- **Do NOT use for** your own working diff or applying fixes — that's `/code-review`. Different job: it edits code, this one drafts comments a human posts.
+- **Do NOT use for** your own working diff — that's `self-review` (report) or `/code-review` (fix). This skill drafts comments a human posts on another author's PR.
 
 ### Sibling tools — when to use which
 
-Several tools answer "review a PR"; they differ by **what they output** and **whether they post**. This skill wins only for the *draft-and-don't-post* case.
+| If you want to… | Use |
+|---|---|
+| Draft tentative inline comments a human posts by hand, on **someone else's** PR | **this skill** |
+| A structured, calibrated report on **your own** diff (same taxonomy/format, direct tone) | `self-review` |
+| Review your own working diff and optionally `--comment` / `--fix` it | `/code-review` |
+| Post a review automatically, or run a multi-agent PR audit | built-in `review` / `/review-pr` |
 
-| If you want to… | Use | Not this |
-|---|---|---|
-| Draft tentative inline comments a human edits + posts by hand, on someone else's PR | **this skill** | — |
-| Review your own working diff (bugs / simplify), optionally `--comment` or `--fix` | `/code-review` | this skill never touches your diff |
-| Have Claude post a review/comments on a PR automatically | `/code-review` / built-in `review` | this skill never posts |
-| Run a comprehensive multi-agent PR audit | `/review-pr` (pr-review-toolkit) | this skill is single-pass, comment-drafting only |
-
-If the human clearly wants *drafted comments they post themselves*, this skill is the match even when they just say "review this PR". If they want it posted or it's their own diff, hand off to the sibling above instead of drafting a file.
+If the human wants *drafted comments they post themselves*, this skill is the match even when they just say "review this PR".
 
 ## Setup (run at the START of every review — make placement unambiguous)
 
@@ -56,130 +54,29 @@ If the human clearly wants *drafted comments they post themselves*, this skill i
    code-review/efficiently-EFF-<ticket>/pr-<PR-number>-review-comments.md
    ```
 
-## Find candidates (code PRs: run `/code-review` as a finder)
+## Find candidates → verify → severity → format
 
-Gather *candidate* findings before verifying — from two sources:
+All four are **defined in `references/review-core.md`** (find-candidates→gate, the verification table, the 4-level severity, the report-body format). Read it and follow it. Only the PR-specific wiring lives here:
 
-- **Your own read** of the change set in the worktree.
-- **`/code-review` as a finder subagent — default ON for PRs that touch code.** Dispatch the built-in `/code-review` (a subagent, **read-only — never `--comment` / `--fix`**) over the PR change set and collect what it surfaces (correctness bugs, simplification, efficiency). Integration seam (validated on the EFF-22950 run): `/code-review` reviews a *working diff*, but the PR is committed. Reset **to the merge-base, not the base tip**: `git -C <worktree> reset --soft "$(git -C <worktree> merge-base origin/<base> HEAD)"` — this stages the whole PR (new files included) as the working diff without touching file contents or line numbers. **Soft, and merge-base, matter:** `--mixed`/`--hard`, or resetting to `origin/<base>` (a tip that may have advanced past the fork), makes `/code-review` review a stale two-dot diff full of *phantom deletions* (work that landed on the base after the branch forked, shown as if this PR removed it). The finder's scope claims are only as good as this — treat them as candidates regardless.
-- **Skip the `/code-review` pass for docs-only PRs** — it's a code reviewer and finds nothing useful on prose. Note the skip in `Overview`, and verify the doc's claims yourself (see the design/spec-doc note below).
+- **Diff exposure for the `/code-review` finder.** The finder reviews a *working diff*, but the PR is committed. Reset **to the merge-base, not the base tip**: `git -C <worktree> reset --soft "$(git -C <worktree> merge-base origin/<base> HEAD)"` — stages the whole PR (new files included) as the working diff without touching file contents or line numbers. **Soft, and merge-base, matter:** `--mixed`/`--hard`, or resetting to `origin/<base>` (an advanced tip), makes `/code-review` review a stale two-dot diff full of *phantom deletions*. Treat its output as candidates regardless (core's gate).
+- **Frontmatter + publisher mapping** are the PR-specific contract in **`references/pr-review.contract.md`** — the file the `pr-comments-publisher` skill parses. The report *body* format is core; the frontmatter (`pr`/`repo`/`ticket`/`base`/`head_sha`/`counts`) and the finding→GitHub-inline-comment mapping are there. Follow it.
 
-**Everything from `/code-review` is an *unverified candidate*, exactly like your own drafts.** It does not arrive with a severity you can trust — cross-model output is not verification (see the gate below). Run every candidate through the same check, assign severity/wording yourself, then **dedupe**: one calibrated finding per issue, in our format. Never write "code-review agrees, so it's real."
+## Conventions (comment style — the non-negotiable tone layer)
 
-## Verification before severity (the core — do not skip)
+The core sets *how you judge*; this shell sets *how the comment reads to another author*. Read `references/conventions.md` for the full seven and `references/phrasing.dictionary.md` for the bank of openers/framings. The essentials:
 
-**No severity and no impact claim ships without evidence from the checked-out repo.** Agreement from a second model (including `/code-review`) or a re-run is NOT verification — only grepping/tracing the actual code (ideally a human exercising the change) closes the "did anyone actually check this?" gap. **Overstating impact is the #1 failure mode.**
-
-For each draft comment, pull out its factual claims and verify each against the checkout:
-
-| Claim type | Check | Notes |
-|---|---|---|
-| blast radius / "used everywhere" | `grep -rn <symbol>` — count real consumers | "shared token" is provable; "breaks half the app" needs the count |
-| regression / "this breaks X" | open the consumer, trace the real effect | e.g. a dot that clamps at 8px behaves gentler than it looks |
-| "not tested" | grep test files for the case + confirm the spec declares it a contract | separates missing contract from incidental gap |
-| "speculative API / no consumer" | grep for consumers of the new input/prop | zero real → holds; any consumer → downgrade/drop |
-| "violates convention" | find the actual rule (CLAUDE.md/.cursor/rules) or neighbor pattern, quote it | leans on the repo, not taste |
-| "duplicated" | confirm the second copy actually exists | e.g. a doc in both this PR and the design PR |
-
-**Calibrate wording to exactly what the check showed.** Couldn't verify? Downgrade to what's known ("this changes a shared token's semantics", not "this breaks the app") and lower the severity — never assert to fill the gap.
-
-**When the PR is a design / spec doc (not code):** verification maps onto the doc's *factual claims* — the cited paths/files exist, the referenced symbols / types / directives are as described, internal counts reconcile, links resolve, and any stated prerequisite is actually true today (grep for it). And the **altitude inverts**: on a design-doc PR, architecture/direction **is** on-topic — engage it here, don't route it away, because this *is* the design PR (conventions §4/§5 assume a code impl PR sitting downstream of an approved design).
-
-Record each check under the **`Checked`** sub-section of the finding's collapsible `<details><summary>Details</summary>` block — visible to the author on a click, but folded so it doesn't clutter the main text (GitHub renders `<details>` in PR comments). The `Details` block holds both `**Why it matters**` and `**Checked**`, split by a `---` rule (see Output format):
-
-```md
-**Checked**
-- grep -rn "eff-sys-shape-pill" → 3 consumers (dot, chip, tag); dot clamps 8px
-```
-
-## Severity
-
-- 🔴 **Critical** — bugs, security, broken behavior, hard `CLAUDE.md`-rule violations. Only with concrete evidence of real breakage/regression/data-loss and confirmed consumers.
-- 🟠 **Important** — likely real problems: Nx structure/boundary/tag/naming violations, blast-radius concerns. Evidence-backed.
-- 🟡 **Minor** — style, small structural notes, minor improvements. No impact claim required.
-- 🔵 **Suggestion** — library extraction, optional refactors — take-it-or-leave-it, explicitly optional.
-
-Group by severity in the file (🔴 → 🟠 → 🟡 → 🔵). Every individual comment still stays humble — severity ranks the *concern*, never licenses a harsher *tone*.
-
-## Output format
-
-**The file's exact structure — frontmatter fields and the finding block — is defined in `references/pr-review.contract.md`. Follow it precisely: that file is the contract the `pr-comments-publisher` skill parses to post the comments.** This section is the quick view; the contract is authoritative.
-
-Open the file with **YAML frontmatter** carrying review-level metadata (`pr`, `repo`, `ticket`, `base`, `head_sha`, `counts`), then a short human note:
-
-```md
----
-pr: <num>
-repo: <owner/repo>
-ticket: EFF-<ticket>
-base: <base-branch>
-head_sha: <pr-head-sha>
-counts: { critical: 0, important: 0, minor: 0, suggestion: 0 }
----
-
-# PR #<num> (EFF-<ticket>) — inline review comments
-
-> Anchors point at real files/lines from the checked-out branch. Tone kept tentative on purpose.
-```
-
-After the note, add a short **`## Overview`** — the whole-PR read at the top: a one-line verdict (anything 🔴 critical, or just 🟠/🟡/🔵?), any specific credit, and PR-level/scope framing (e.g. "this *is* the design PR, so architecture is on-topic here"; or the ticket-fallback flag). Recommended; skip only if there is genuinely nothing to say at the PR level.
-
-Then group comments under severity headings (🔴 / 🟠 / 🟡 / 🔵), with a `---` rule between every comment so each block is visually separate. One comment block:
-
-````md
----
-
-### N. <🔴|🟠|🟡|🔵> <short concern title>
-
-```
-file:   <basename.ext>
-path:   <path/from/repo-root/to/file.ext>
-line:   <NN>
-anchor: <exact line text>
-```
-
-> <the ask — one tentative sentence; this is what gets skimmed>
-
-<details><summary>Details</summary>
-
-**Why it matters**
-- <one distinct point per line; **bold** the key term>
-- <another point — keep each to a line; only what the evidence supports>
-
----
-
-**Checked**
-- <what you ran → what you found, one per line>
-
-</details>
-````
-
-Two things keep the file scannable, not a wall of text:
-
-- **The locator is a fenced code block on purpose.** Outside a fence, GitHub collapses the adjacent `file`/`path`/`line`/`anchor` lines into one run-on paragraph; the fence keeps them on separate lines, adds a copy button, and renders the `anchor` literally even when it holds backticks or markdown. Each field on its own line lets the author copy the full `path` (open/search the file) or the `anchor` (jump to the line) alone; `file` (basename) is the fast visual scan.
-- **Only the ask is visible; everything else folds into one `<details><summary>Details</summary>` block.** The `>` quote is one tentative sentence. Inside `Details`, `**Why it matters**` and `**Checked**` are split by a `---` rule. **Two registers:** the visible ask is telegraphic; inside the fold (opt-in reading) write *expansively* — semantic paragraphs (one facet each), **bold** the key claim, bullets only for real enumeration; `Checked` narrates what you set out to confirm → how → what it showed, with raw commands in a code block. Guardrails: structure it (paragraphs + emphasis, never a monolith), and **length never inflates certainty** — expand the explanation, keep every claim tied to `Checked`, hedge the unverified.
-
-Anything that isn't an inline finding and isn't part of the `Overview` goes in an optional trailing **`## Other`** section — chiefly cross-PR routing (a concern that belongs on a *different* PR: architecture/direction → the design PR, not this impl PR — named explicitly, "→ design PR #NNNN"), plus off-diff or tooling notes. Don't drop such items and don't force them inline; but omit the whole section when there's nothing for it. (`Overview` = the overall read; `Other` = strays that are neither a line-anchored finding nor part of that read.)
-
-## Conventions (comment style — the non-negotiable part)
-
-Read `references/conventions.md` for the full seven, and `references/phrasing.dictionary.md` for the bank of openers/framings to draw tone from. The essentials:
-
-1. **Tentative framing, always** — open with a phrasing from `references/phrasing.dictionary.md`; never an imperative or accusation (its *Avoid* category lists them).
-2. **Anchor precisely** — labeled `file` / `path` / `line` / `anchor`, each on its own line (see the contract). One concern per comment.
-3. **Calibrate to evidence** — see the verification gate above.
-4. **Separate altitudes** — code nits on the impl PR; architecture/direction on the design PR.
-5. **Faithful-to-spec ≠ defect** — an impl PR matching an approved design isn't the place to relitigate the design.
-6. **No slop-shaming** — credit what's done well; judge the code, not the presumed authoring process.
-7. **Group by severity, stay humble per comment.**
+1. **Tentative framing, always** — the visible lead is a *question*, opened with a phrasing from the dictionary; never an imperative or accusation (its *Avoid* list). (In `self-review` this flips to a direct statement — same finding, different shell.)
+2. **Anchor precisely** — labeled `file` / `path` / `line` / `anchor` (core's locator block). One concern per comment.
+3. **Separate altitudes** — code nits on the impl PR; architecture/direction → the design PR (route via `Other`).
+4. **Faithful-to-spec ≠ defect** — an impl PR matching an approved design isn't the place to relitigate the design.
+5. **No slop-shaming** — credit what's done well; judge the code, not the presumed authoring process.
 
 ## Red flags — STOP, you're about to fail
 
-- Writing "revert this" / "you should" / "please add" → imperative. Rewrite tentatively.
-- Asserting app-wide impact you haven't grepped → overstatement. Verify or downgrade.
-- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to *Other* / the design PR.
-- No `Checked` section in the `<details>Details</details>` block on a comment carrying a severity → you skipped the gate.
+- Writing "revert this" / "you should" / "please add" → imperative on someone else's PR. Rewrite tentatively.
+- Pushing a redesign on an impl PR that faithfully follows an approved design → wrong altitude; move it to `Other` / the design PR.
 - About to post/approve/request-changes → STOP. You only write the file.
+- (Plus the core's gate red flags — no `Checked`, unverified impact claims, trusting a finder's severity, surprising diffs.)
 
 ## Rationalization table
 
@@ -187,6 +84,5 @@ Read `references/conventions.md` for the full seven, and `references/phrasing.di
 |---|---|
 | "I can't check the repo but the concern is obvious" | Then downgrade the wording and severity. Obvious-feeling ≠ verified. |
 | "It's faster to just tell them to revert" | Directives skip the owner's judgement. Frame it as a question. |
-| "The design itself is questionable" | Not on the impl PR. Route it → design PR. |
+| "The design itself is questionable" | Not on the impl PR. Route it → design PR (`Other`). |
 | "A second opinion agrees, so it's confirmed" | Cross-model agreement isn't verification. Grep the code. |
-| "Quoting the line is enough, I'll skip the line number" | Real line numbers are cheap now — you have the checkout. Use them. |
