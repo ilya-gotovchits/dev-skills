@@ -14,9 +14,9 @@ YAML frontmatter at the top carries review-level metadata:
 
 ```yaml
 ---
-pr: 57866                       # PR number (int)
-repo: efficiently/efficiently   # owner/repo
-ticket: EFF-24180               # Jira ticket, or pr-<N> fallback
+pr: 123                         # PR number (int)
+repo: acme/repo                 # owner/repo
+ticket: TICKET-123              # tracker ticket, or pr-<N> fallback
 base: main                      # base branch
 head_sha: a1b2c3d4              # HEAD commit of the PR branch at review time —
                                 # the commit inline comments anchor to

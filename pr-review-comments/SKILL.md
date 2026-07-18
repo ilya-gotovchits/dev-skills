@@ -36,22 +36,22 @@ If the human wants *drafted comments they post themselves*, this skill is the ma
 2. Resolve the Jira ticket `EFF-xxxxx` — from the PR branch name; if absent, from the commit messages. If it still can't be resolved, ask the human once; if unavailable, fall back to a `pr-<PR-number>` folder and flag it in the `Overview` — never silently invent a placeholder ticket.
 3. **Check the PR out into a per-PR folder as a `git worktree`** so you review *real files with real line numbers*, not the diff's approximate ones:
    ```
-   code-review/efficiently-EFF-<ticket>/
+   code-review/<repo>-<ticket>/
    ```
    - **Prefer an existing local clone** of the repo (look for a sibling checkout first). Into it, **fetch both the base and head refs fresh** — so `origin/<base>` is the real remote tip, not a stale one — then add a **detached** worktree pinned to the PR head sha:
      ```
      git -C <clone> fetch origin <headRef>:refs/remotes/origin/<headRef> <baseRef>:refs/remotes/origin/<baseRef>
-     git -C <clone> worktree add --detach code-review/efficiently-EFF-<ticket> <head_sha>
+     git -C <clone> worktree add --detach code-review/<repo>-<ticket> <head_sha>
      ```
      The worktree is detached at the head sha — independent of whatever branch the clone sits on, and it never disturbs the clone's working tree. A husky / `post-checkout` hook may exit non-zero on checkout — the checkout still succeeded; don't treat it as a failure.
    - **Fallback if no local clone exists — use git, not the API.** `git clone <clone_url>` (prefer `--filter=blob:none`: keeps full history so the merge-base resolves, skips unneeded blobs), then fetch refs + worktree as above. `gh pr checkout` is fine when `gh` is installed, but `gh` is optional — plain `git` is the baseline; never reconstruct the tree from `get_pull_request_files` / `get_file_contents`.
    - Reuse/update the folder if it already exists.
 
    Working with real files means anchors are exact and you never fetch file contents through the API.
-4. Get the change set **from the worktree with a three-dot diff**: `git -C <worktree> diff origin/<base>...HEAD`. `A...B` diffs from the **merge-base**, matching GitHub's "Files changed". **Never a two-dot diff** (`origin/<base>..HEAD`) — it folds in commits that landed on the base *after* the branch forked and inflates the change set. **Per-file inspection is three-dot too:** `git diff origin/<base>...HEAD -- <file>`, never `git diff origin/<base> -- <file>` — against an advanced base tip, two-dot shows post-fork base commits *as if this PR deleted them* (phantom deletions that read as a scary 🔴; on the EFF-22950 run this faked a whole `eff-status` removal). If a "deletion" looks surprising, re-check three-dot before believing it. **Sanity-check the `--stat`:** if it shows far more than the PR's scale (its `size/*` label / your expectation), the base ref is stale or the clone is shallow → re-fetch (`--unshallow` / enough depth) until the merge-base resolves. Record the head sha (`git -C <worktree> rev-parse HEAD`) for the frontmatter `head_sha`.
+4. Get the change set **from the worktree with a three-dot diff**: `git -C <worktree> diff origin/<base>...HEAD`. `A...B` diffs from the **merge-base**, matching GitHub's "Files changed". **Never a two-dot diff** (`origin/<base>..HEAD`) — it folds in commits that landed on the base *after* the branch forked and inflates the change set. **Per-file inspection is three-dot too:** `git diff origin/<base>...HEAD -- <file>`, never `git diff origin/<base> -- <file>` — against an advanced base tip, two-dot shows post-fork base commits *as if this PR deleted them* (phantom deletions that read as a scary 🔴 — e.g. a whole component that was actually *added on the base* after your fork, shown as if this PR removed it). If a "deletion" looks surprising, re-check three-dot before believing it. **Sanity-check the `--stat`:** if it shows far more than the PR's scale (its `size/*` label / your expectation), the base ref is stale or the clone is shallow → re-fetch (`--unshallow` / enough depth) until the merge-base resolves. Record the head sha (`git -C <worktree> rev-parse HEAD`) for the frontmatter `head_sha`.
 5. Output goes to, and only to:
    ```
-   code-review/efficiently-EFF-<ticket>/pr-<PR-number>-review-comments.md
+   code-review/<repo>-<ticket>/pr-<PR-number>-review-comments.md
    ```
 
 ## Find candidates → verify → severity → format

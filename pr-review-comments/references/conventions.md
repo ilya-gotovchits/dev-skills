@@ -27,7 +27,7 @@ file:
 path:
     src/tokens/shape.ts
 line: ~42
-anchor: `--eff-sys-shape-pill: 20px;`
+anchor: `--radius-pill: 20px;`
 ```
 
 ### 3. Calibrate claims to evidence
@@ -103,43 +103,40 @@ Spend attention where it matters; a pile of trivial nits buries the one comment 
 
 ## Canonical example
 
-The first block from the EFF-24181 live run (PR #57943, a design-doc PR) — real anchors, real greps. It shows the whole shape: a telegraphic ask visible, expansive `Why`/`Checked` folded under one `Details`, evidence kept reproducible.
+A worked block (illustrative, generic repo). It shows the whole shape: a telegraphic ask visible, expansive `Why` / `Checked` folded under one `Details`, evidence kept reproducible.
 
 ````md
-### 1. 🟠 Does `max` overflow apply to `role="grid"` / `listbox`?
+### 1. 🟠 Fixed `block-size` on a text-bearing badge trips the no-fixed-height rule
 
 ```
-file:   chip-design.md
-path:   libs/client/shared/ui-kit/docs/design/chip-design.md
-line:   60
-anchor: <eff-chip-set role="grid" [max]="5">
+file:   badge.component.scss
+path:   src/lib/badge/badge.component.scss
+line:   15
+anchor: block-size: var(--badge-height);
 ```
 
-> I wonder if `max` is meant for `role="grid"` / `listbox` too — or should it be scoped to `role="list"`?
+> I wonder if the text-bearing shapes could use `min-block-size` instead of a fixed `block-size` — the repo's scss rule and WCAG 1.4.12 both flag fixed height on text containers?
 
 <details><summary>Details</summary>
 
 **Why it matters**
 
-**The §7 overflow model is designed for static collections.** `max` renders the first *N* chips and drops the rest — §7 is explicit that hidden chips are *not rendered* (an `@for` slice, not `display: none`) and that the `+N` badge is non-interactive in v1. For a `role="list"` tag bar that's exactly right.
+**The `:host` renders projected text but pins its height.** The badge projects `<ng-content>` (a word or a number), yet `:host` sets `block-size: var(--badge-height)` together with `line-height: 1` and `white-space: nowrap`.
 
-**It gets shaky on the interactive roles.** In a `role="grid"` of input tokens (email-pills, image tags) a chip past the cap isn't in the DOM at all, so there's no keyboard or AT path to it — the user can't reach or remove a token they just added. In a `role="listbox"` filter, a chip that is *selected* but past the cap disappears from AT while still affecting the filter — a silent selection.
+**It's the repo's own rule, with a WCAG basis.** The scss rule (l.49) says "No fixed `width`/`height` on content containers"; the Text Spacing item (l.60, WCAG 1.4.12) says "avoid fixed `height` on text containers — use `min-height`."
 
-**The migration map already seems to assume list-only.** `[max]` shows up only in §14.4 (Pattern D, static tags); §14.1 (grid) and §14.2 (listbox) don't mention overflow. So list-only may be the intent — it just isn't stated as a constraint, and the §4 example (`role="grid" [max]="5"`) points the other way.
+**It clips at the small sizes.** Under a text-spacing override (line-height forced to 1.5), the line box outgrows the fixed height on the small step — `14px` tall with a `10px` font gives `10 × 1.5 = 15px > 14px`, so the label clips. `min-block-size` lets the pill grow instead.
 
 ---
 
 **Checked**
 
-Confirmed two things: that hidden chips really leave the DOM, and which roles the migration map pairs with `max`.
-
 ```
-§4 (line 60):  <eff-chip-set role="grid" [max]="5">        # grid + max, in the arch example
-§7 (~280):     "Hidden chips are not rendered (@for slice)"; "+N non-interactive in v1"
-§14.1 grid: no [max] · §14.2 listbox: no [max] · §14.4 list: role="list" [max]
+scss rule l.49  "No fixed width/height on content containers"
+scss rule l.60  "WCAG 1.4.12 … avoid fixed height on text containers — use min-height"
+badge.component.scss:15  block-size + line-height:1 + white-space:nowrap
+size map: xs {h:14, fs:10}  → clips at line-height 1.5
 ```
-
-So the contradiction is internal to the doc: the architecture sketch shows `grid + max`, but every migration site that uses `max` is a `list`.
 
 </details>
 ````
